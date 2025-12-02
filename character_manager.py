@@ -25,7 +25,8 @@ def create_character(name, character_class):
     stats_classes = {
         "Warrior": {"health": 120, "strength": 15, "magic": 3},
         "Mage": {"health": 80, "strength": 5, "magic": 20},
-        "Rogue": {"health": 100, "strength": 12, "magic": 8}
+        "Rogue": {"health": 100, "strength": 12, "magic": 8},
+        "Cleric": {"health": 110, "strength": 8, "magic": 15}  # <-- ADDED THIS
     }
 
     # Directly check in the stats_classes keys
