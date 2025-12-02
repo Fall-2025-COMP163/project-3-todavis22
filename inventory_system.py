@@ -200,24 +200,11 @@ def unequip_armor(character):
 # ============================================================================
 
 def purchase_item(character, item_id, item_data):
-    """Buy an item from the shop.
+    """Buy an item from the shop"""
+    cost = item_data["cost"]  # item_data is already for this item
 
-    item_data can be:
-    - the full items dict: {"health_potion": {...}, "iron_sword": {...}}
-    - a single item's dict: {"cost": 25, "type": "consumable", ...}
-    """
-
-    # Normalize item lookup
-    if isinstance(item_data, dict) and item_id in item_data and isinstance(item_data[item_id], dict):
-        item = item_data[item_id]
-    else:
-        item = item_data  # assume it's already the item dict
-
-    cost = item["cost"]
-
-    # Give character default starting gold if not set
     if "gold" not in character:
-        character["gold"] = DEFAULT_STARTING_GOLD
+        character["gold"] = 0
 
     if character["gold"] < cost:
         raise InsufficientResourcesError("Not enough gold")
@@ -231,7 +218,6 @@ def purchase_item(character, item_id, item_data):
     character["gold"] -= cost
     character["inventory"].append(item_id)
     return True
-
 
 
 def sell_item(character, item_id, item_data):
