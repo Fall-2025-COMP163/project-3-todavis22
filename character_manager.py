@@ -25,10 +25,11 @@ def create_character(name, character_class):
     stats_classes = {
         "Warrior": {"health": 120, "strength": 15, "magic": 3},
         "Mage": {"health": 80, "strength": 5, "magic": 20},
-        "Rogue": {"health": 100, "strength": 12, "magic": 8}
+        "Rogue": {"health": 100, "strength": 12, "magic": 8},
+        "Cleric": {"health": 90, "strength": 8, "magic": 15}  # Added Cleric
     }
 
-    # Directly check in the stats_classes keys
+    # Check if the class exists
     if character_class not in stats_classes:
         raise InvalidCharacterClassError(f"Invalid class: {character_class}")
 
@@ -50,7 +51,6 @@ def create_character(name, character_class):
     }
 
     return character
-    
 
 def save_character(character, save_directory="data/save_games"):
     if not os.path.exists(save_directory):
