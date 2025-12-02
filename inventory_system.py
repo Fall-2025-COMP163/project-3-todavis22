@@ -123,7 +123,10 @@ def equip_weapon(character, item_id, item_data):
     character["equipped_weapon"] = item_id
     character["equipped_weapon_effect"] = item["effect"]
     character["inventory"].remove(item_id)
-    return f"{character['name']} equipped {item['name']} (+{value} {stat})."
+
+    # FIX ADDED HERE
+    item_name = item.get("name", item_id)
+    return f"{character['name']} equipped {item_name} (+{value} {stat})."
 
 
 def equip_armor(character, item_id, item_data):
@@ -149,7 +152,10 @@ def equip_armor(character, item_id, item_data):
     character["equipped_armor"] = item_id
     character["equipped_armor_effect"] = item["effect"]
     character["inventory"].remove(item_id)
-    return f"{character['name']} equipped {item['name']} (+{value} {stat})."
+
+    # FIX ADDED HERE
+    item_name = item.get("name", item_id)
+    return f"{character['name']} equipped {item_name} (+{value} {stat})."
 
 
 def unequip_weapon(character):
@@ -196,7 +202,6 @@ def unequip_armor(character):
 # ============================================================================
 # SHOP SYSTEM
 # ============================================================================
-
 def purchase_item(character, item_id, item_data):
     """Buy an item from the shop"""
     cost = item_data[item_id]["cost"] if item_id in item_data else item_data["cost"]
@@ -233,7 +238,6 @@ def sell_item(character, item_id, item_data):
 # ============================================================================
 # HELPERS
 # ============================================================================
-
 def parse_item_effect(effect_string):
     """Parse 'stat:value' string into stat and integer value"""
     stat_name, value = effect_string.split(":")
