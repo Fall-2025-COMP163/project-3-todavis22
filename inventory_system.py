@@ -123,7 +123,9 @@ def equip_weapon(character, item_id, item_data):
     character["equipped_weapon"] = item_id
     character["equipped_weapon_effect"] = item["effect"]
     character["inventory"].remove(item_id)
-    return f"{character['name']} equipped {item['name']} (+{value} {stat})."
+
+    item_name = item.get("name", item_id)  # fallback to item_id if 'name' is missing
+    return f"{character['name']} equipped {item_name} (+{value} {stat})."
 
 
 def equip_armor(character, item_id, item_data):
