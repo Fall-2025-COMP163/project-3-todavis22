@@ -28,7 +28,8 @@ def create_character(name, character_class):
         "Rogue": {"health": 100, "strength": 12, "magic": 8}
     }
 
-    if char_class not in valid_classes:
+    # Directly check in the stats_classes keys
+    if character_class not in stats_classes:
         raise InvalidCharacterClassError(f"Invalid class: {character_class}")
 
     stats = stats_classes[character_class]
@@ -49,9 +50,9 @@ def create_character(name, character_class):
     }
 
     return character
+    
 
 def save_character(character, save_directory="data/save_games"):
-    
     if not os.path.exists(save_directory):
         os.makedirs(save_directory)
 
@@ -61,22 +62,24 @@ def save_character(character, save_directory="data/save_games"):
     active_csv = ",".join(character["active_quests"])
     completed_csv = ",".join(character["completed_quests"])
 
-    with open(file_path, "w") as f:
-        f.write(f"NAME: {character['name']}\n")
-        f.write(f"CLASS: {character['class']}\n")
-        f.write(f"LEVEL: {character['level']}\n")
-        f.write(f"HEALTH: {character['health']}\n")
-        f.write(f"MAX_HEALTH: {character['max_health']}\n")
-        f.write(f"STRENGTH: {character['strength']}\n")
-        f.write(f"MAGIC: {character['magic']}\n")
-        f.write(f"EXPERIENCE: {character['experience']}\n")
-        f.write(f"GOLD: {character['gold']}\n")
-        f.write(f"INVENTORY: {inventory_csv}\n")
-        f.write(f"ACTIVE_QUESTS: {active_csv}\n")
-        f.write(f"COMPLETED_QUESTS: {completed_csv}\n")
+    try:
+        with open(file_path, "w") as f:
+            f.write(f"NAME: {character['name']}\n")
+            f.write(f"CLASS: {character['class']}\n")
+            f.write(f"LEVEL: {character['level']}\n")
+            f.write(f"HEALTH: {character['health']}\n")
+            f.write(f"MAX_HEALTH: {character['max_health']}\n")
+            f.write(f"STRENGTH: {character['strength']}\n")
+            f.write(f"MAGIC: {character['magic']}\n")
+            f.write(f"EXPERIENCE: {character['experience']}\n")
+            f.write(f"GOLD: {character['gold']}\n")
+            f.write(f"INVENTORY: {inventory_csv}\n")
+            f.write(f"ACTIVE_QUESTS: {active_csv}\n")
+            f.write(f"COMPLETED_QUESTS: {completed_csv}\n")
+    except Exception as e:
+        raise SaveFileCorruptedError(f"Failed to save character: {e}")
 
     return True
-
 # ==========================
 def load_character(character_name, save_directory="data/save_games"):
     file_path = os.path.join(save_directory, f"{character_name}.txt")
