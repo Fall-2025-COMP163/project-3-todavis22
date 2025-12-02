@@ -20,16 +20,16 @@ from custom_exceptions import (
 # ENEMY DEFINITIONS
 # ============================================================================
 def create_enemy(enemy_type):
-    enemies = {
+    opp = {
         "goblin": {"health": 50, "strength": 8, "magic": 2, "xp_reward": 25, "gold_reward": 10},
         "orc": {"health": 80, "strength": 12, "magic": 5, "xp_reward": 50, "gold_reward": 25},
         "dragon": {"health": 200, "strength": 25, "magic": 15, "xp_reward": 200, "gold_reward": 100}
     }
 
-    if enemy_type not in enemies:
+    if enemy_type not in opp:
         raise InvalidTargetError(f"Enemy type '{enemy_type}' not recognized")
     
-    stats = enemies[enemy_type]
+    stats = opp[enemy_type]
     return {
         "name": enemy_type,
         "health": stats["health"],
@@ -47,11 +47,10 @@ def get_random_enemy_for_level(character_level):
         enemy_type = "orc"
     else:
         enemy_type = "dragon"
-    
     return create_enemy(enemy_type)
 
 # ==========================
-# HELPER FUNCTIONS
+# HELPER FUNCTIONS FOR COMBAT
 # ==========================
 def display_battle_log(message):
     print(message)
@@ -65,12 +64,10 @@ def use_special_ability(character, enemy):
 # COMBAT SYSTEM
 # ==========================
 class SimpleBattle:
-    def __init__(self, character, enemy=None):
+    def __init__(self, character, enemy):
+        # Only 2 parameters as required
         self.character = character
-        if enemy is None:
-            self.enemy = get_random_enemy_for_level(self.character['level'])
-        else:
-            self.enemy = enemy
+        self.enemy = enemy
         self.in_battle = True
         self.turn_count = 0
 
@@ -91,10 +88,6 @@ class SimpleBattle:
                 break
         
         if self.character['health'] > 0:
-            if 'experience' not in self.character:
-                self.character['experience'] = 0
-            if 'gold' not in self.character:
-                self.character['gold'] = 0
             self.character['experience'] += self.enemy['xp_reward']
             self.character['gold'] += self.enemy['gold_reward']
             return {'winner': 'player', 'xp_gained': self.enemy['xp_reward'], 'gold_gained': self.enemy['gold_reward']}
@@ -156,34 +149,3 @@ class SimpleBattle:
             self.in_battle = False
             return True
         return False
-
-# ==========================
-# TESTING BLOCK
-# ==========================
-if __name__ == "__main__":
-    print("=== COMBAT SYSTEM TEST ===")
-    
-    try:
-        goblin = create_enemy("goblin")
-        print(f"Created {goblin['name']}")
-    except InvalidTargetError as e:
-        print(f"Invalid enemy: {e}")
-    
-    test_char = {
-        'name': 'Hero',
-        'class': 'Warrior',
-        'level': 1,
-        'health': 120,
-        'max_health': 120,
-        'strength': 15,
-        'magic': 5,
-        'experience': 0,
-        'gold': 100
-    }
-
-    battle = SimpleBattle(test_char)
-    try:
-        result = battle.start_battle()
-        print(f"Battle result: {result}")
-    except CharacterDeadError:
-        print("Character is dead!")
