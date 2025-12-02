@@ -73,28 +73,31 @@ def clear_inventory(character):
     character["inventory"] = []
     return removed_items
 
-# ============================================================================
+# ============================================================================ 
 # ITEM USAGE
 # ============================================================================
+
 def use_item(character, item_id, item_data):
     """Use a consumable item"""
     if "inventory" not in character or item_id not in character["inventory"]:
         raise ItemNotFoundError(f"{item_id} not in inventory.")
 
-    # Support both formats
     if item_id in item_data:
         item = item_data[item_id]
     else:
         item = item_data
 
-    if item["type"] != "consumable":
+    if "type" not in item or item["type"] != "consumable":
         raise InvalidItemTypeError(f"{item_id} cannot be used directly.")
+
+    if "effect" not in item:
+        raise InvalidItemTypeError(f"{item_id} has no effect to apply.")
 
     stat, value = parse_item_effect(item["effect"])
     apply_stat_effect(character, stat, value)
     character["inventory"].remove(item_id)
 
-    item_name = item.get("name", item_id)
+    item_name = item["name"] if "name" in item else item_id
     return f"Used {item_name}, {stat} increased by {value}."
 
 
@@ -108,8 +111,11 @@ def equip_weapon(character, item_id, item_data):
     else:
         item = item_data
 
-    if item["type"] != "weapon":
+    if "type" not in item or item["type"] != "weapon":
         raise InvalidItemTypeError(f"{item_id} is not a weapon.")
+
+    if "effect" not in item:
+        raise InvalidItemTypeError(f"{item_id} has no effect to apply.")
 
     if "equipped_weapon" in character and character["equipped_weapon"] is not None:
         unequip_weapon(character)
@@ -123,9 +129,8 @@ def equip_weapon(character, item_id, item_data):
     character["equipped_weapon_effect"] = item["effect"]
     character["inventory"].remove(item_id)
 
-    item_name = item.get("name", item_id)
-    char_name = character.get("name", "Character")
-
+    item_name = item["name"] if "name" in item else item_id
+    char_name = character["name"] if "name" in character else "Character"
     return f"{char_name} equipped {item_name} (+{value} {stat})."
 
 
@@ -139,8 +144,11 @@ def equip_armor(character, item_id, item_data):
     else:
         item = item_data
 
-    if item["type"] != "armor":
+    if "type" not in item or item["type"] != "armor":
         raise InvalidItemTypeError(f"{item_id} is not armor.")
+
+    if "effect" not in item:
+        raise InvalidItemTypeError(f"{item_id} has no effect to apply.")
 
     if "equipped_armor" in character and character["equipped_armor"] is not None:
         unequip_armor(character)
@@ -154,11 +162,13 @@ def equip_armor(character, item_id, item_data):
     character["equipped_armor_effect"] = item["effect"]
     character["inventory"].remove(item_id)
 
-    item_name = item.get("name", item_id)
-    char_name = character.get("name", "Character")
-
+    item_name = item["name"] if "name" in item else item_id
+    char_name = character["name"] if "name" in character else "Character"
     return f"{char_name} equipped {item_name} (+{value} {stat})."
 
+# ============================================================================ 
+# UNEQUIP FUNCTIONS
+# ============================================================================
 
 def unequip_weapon(character):
     """Unequip current weapon"""
@@ -201,21 +211,22 @@ def unequip_armor(character):
     character["equipped_armor_effect"] = None
     return armor_id
 
-# ============================================================================
+# ============================================================================ 
 # SHOP SYSTEM
 # ============================================================================
+
 def purchase_item(character, item_id, item_data):
     """Buy an item from the shop"""
 
-    # Supports:
-    # - {"health_potion": {...}}
-    # - {"cost": ..., "type": ...}
-    if isinstance(item_data, dict) and item_id in item_data:
+    if item_id in item_data:
         item = item_data[item_id]
     else:
         item = item_data
 
-    cost = item.get("cost", 0)
+    if "cost" not in item:
+        cost = 0
+    else:
+        cost = item["cost"]
 
     if "gold" not in character:
         character["gold"] = 0
@@ -240,12 +251,16 @@ def sell_item(character, item_id, item_data):
     if "inventory" not in character or item_id not in character["inventory"]:
         raise ItemNotFoundError("Item not in inventory")
 
-    if isinstance(item_data, dict) and item_id in item_data:
+    if item_id in item_data:
         item = item_data[item_id]
     else:
         item = item_data
 
-    sell_price = item.get("cost", 0) // 2
+    if "cost" not in item:
+        sell_price = 0
+    else:
+        sell_price = item["cost"] // 2
+
     character["inventory"].remove(item_id)
 
     if "gold" not in character:
@@ -254,13 +269,14 @@ def sell_item(character, item_id, item_data):
     character["gold"] += sell_price
     return sell_price
 
-# ============================================================================
+# ============================================================================ 
 # HELPERS
 # ============================================================================
+
 def parse_item_effect(effect_string):
     """Parse 'stat:value' string into stat and integer value"""
-    stat_name, value = effect_string.split(":")
-    return stat_name, int(value)
+    parts = effect_string.split(":")
+    return parts[0], int(parts[1])
 
 
 def apply_stat_effect(character, stat_name, value):
@@ -286,9 +302,17 @@ def display_inventory(character, item_data_dict):
 
     counts = {}
     for item in inventory:
-        counts[item] = counts.get(item, 0) + 1
+        if item not in counts:
+            counts[item] = 0
+        counts[item] += 1
 
     print("=== Inventory ===")
     for item_id, qty in counts.items():
-        item_info = item_data_dict[item_id] if item_id in item_data_dict else item_data_dict
-        print(f"{item_info.get('name', item_id)} ({item_info['type']}) x{qty}")
+        if item_id in item_data_dict:
+            item_info = item_data_dict[item_id]
+            name = item_info["name"] if "name" in item_info else item_id
+            type_ = item_info["type"] if "type" in item_info else "unknown"
+        else:
+            name = item_id
+            type_ = "unknown"
+        print(f"{name} ({type_}) x{qty}")
