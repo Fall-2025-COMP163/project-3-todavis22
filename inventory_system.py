@@ -205,6 +205,7 @@ def purchase_item(character, item_id, item_data):
 
     if "gold" not in character:
         character["gold"] = 0
+
     if character["gold"] < cost:
         raise InsufficientResourcesError("Not enough gold")
 
