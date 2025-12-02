@@ -76,12 +76,12 @@ def clear_inventory(character):
 # ============================================================================
 # ITEM USAGE
 # ============================================================================
-
 def use_item(character, item_id, item_data):
     """Use a consumable item"""
     if "inventory" not in character or item_id not in character["inventory"]:
         raise ItemNotFoundError(f"{item_id} not in inventory.")
 
+    # Support full item_data dicts AND simple {type, effect}
     if item_id in item_data:
         item = item_data[item_id]
     else:
@@ -93,7 +93,11 @@ def use_item(character, item_id, item_data):
     stat, value = parse_item_effect(item["effect"])
     apply_stat_effect(character, stat, value)
     character["inventory"].remove(item_id)
-    return f"Used {item['name']}, {stat} increased by {value}."
+
+    # Fallback name if not provided (prevents KeyError)
+    item_name = item.get("name", item_id)
+
+    return f"Used {item_name}, {stat} increased by {value}."
 
 
 def equip_weapon(character, item_id, item_data):
