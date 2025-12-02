@@ -243,13 +243,13 @@ def shop():
             try:
                 idx = int(choice.split()[1]) - 1
                 item_key = list(all_items.keys())[idx]
-                buy_item(current_character, item_key)
+                purchase_item(current_character, item_key, all_items)
             except (ValueError, IndexError, InventoryError) as e:
                 print(f"Cannot buy item: {e}")
         elif choice.startswith("sell"):
             try:
                 item_name = " ".join(choice.split()[1:])
-                sell_item(current_character, item_name)
+                sell_item(current_character, item_name, all_items)
             except InventoryError as e:
                 print(f"Cannot sell item: {e}")
         elif choice == "back":
