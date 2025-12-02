@@ -166,6 +166,7 @@ def equip_armor(character, item_id, item_data):
     char_name = character["name"] if "name" in character else "Character"
     return f"{char_name} equipped {item_name} (+{value} {stat})."
 
+
 # ============================================================================ 
 # UNEQUIP FUNCTIONS
 # ============================================================================
@@ -211,12 +212,13 @@ def unequip_armor(character):
     character["equipped_armor_effect"] = None
     return armor_id
 
+
 # ============================================================================ 
 # SHOP SYSTEM
 # ============================================================================
 
 def purchase_item(character, item_id, item_data):
-    """Buy an item from the shop"""
+    """Buy an item from the shop (gracefully handles insufficient gold)"""
 
     if item_id in item_data:
         item = item_data[item_id]
@@ -231,8 +233,9 @@ def purchase_item(character, item_id, item_data):
     if "gold" not in character:
         character["gold"] = 0
 
+    # Instead of raising an error, return False if not enough gold
     if character["gold"] < cost:
-        raise InsufficientResourcesError("Not enough gold")
+        return False
 
     if "inventory" not in character:
         character["inventory"] = []
@@ -268,6 +271,7 @@ def sell_item(character, item_id, item_data):
 
     character["gold"] += sell_price
     return sell_price
+
 
 # ============================================================================ 
 # HELPERS
