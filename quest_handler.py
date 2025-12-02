@@ -66,6 +66,7 @@ def parse_quest_block(lines):
 # ==========================
 # QUEST FUNCTIONS
 # ==========================
+
 def accept_quest(character, quest_id, quest_data_dict):
     if quest_id not in quest_data_dict:
         raise QuestNotFoundError(f"Quest '{quest_id}' not found")
@@ -107,15 +108,17 @@ def complete_quest(character, quest_id, quest_data_dict):
     character["active_quests"].remove(quest_id)
     character["completed_quests"].append(quest_id)
 
-    if "xp" not in character:
-        character["xp"] = 0
+    # Ensure character has experience and gold keys
+    if "experience" not in character:
+        character["experience"] = 0
     if "gold" not in character:
         character["gold"] = 0
 
-    character["xp"] += quest["reward_xp"]
+    # Update character rewards
+    character["experience"] += quest["reward_xp"]
     character["gold"] += quest["reward_gold"]
 
-    return {"xp": quest["reward_xp"], "gold": quest["reward_gold"]}
+    return {"experience": quest["reward_xp"], "gold": quest["reward_gold"]}
 
 def abandon_quest(character, quest_id):
     if "active_quests" not in character:
@@ -187,13 +190,16 @@ def can_accept_quest(character, quest_id, quest_data_dict):
 def get_quest_prerequisite_chain(quest_id, quest_data_dict):
     if quest_id not in quest_data_dict:
         raise QuestNotFoundError(f"Quest '{quest_id}' not found")
+    
     chain = []
     current = quest_id
     while current != "NONE":
-        chain.insert(0, current)
+        chain.append(current)
         current = quest_data_dict[current]["prerequisite"]
         if current != "NONE" and current not in quest_data_dict:
             raise QuestNotFoundError(f"Prerequisite '{current}' not found")
+    
+    chain.reverse()  # reverse at the end instead of inserting at the front
     return chain
 
 def get_quest_completion_percentage(character, quest_data_dict):
