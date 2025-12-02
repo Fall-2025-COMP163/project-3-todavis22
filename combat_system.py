@@ -31,7 +31,7 @@ def create_enemy(enemy_type):
 
     stats = opp[enemy_type]
     return {
-        "name": enemy_type,
+        "name": enemy_type.capitalize(),  # <--- capitalize first letter
         "health": stats["health"],
         "max_health": stats["health"],
         "strength": stats["strength"],
@@ -39,7 +39,6 @@ def create_enemy(enemy_type):
         "xp_reward": stats["xp_reward"],
         "gold_reward": stats["gold_reward"]
     }
-
 def display_battle_log(message):
     print(message)
 
