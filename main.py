@@ -43,6 +43,7 @@ def main_menu():
             return int(choice)
         print("Invalid input. Please enter 1, 2, or 3.")
 
+
 def new_game():
     """Start a new game"""
     global current_character
@@ -63,6 +64,7 @@ def new_game():
         except InvalidCharacterClassError:
             print("Invalid class. Choose Warrior, Mage, or Rogue.")
 
+
 def load_game():
     """Load an existing saved game"""
     global current_character
@@ -78,7 +80,7 @@ def load_game():
         while True:
             choice = input(f"Select a character (1-{len(saved_chars)}): ").strip()
             if choice.isdigit() and 1 <= int(choice) <= len(saved_chars):
-                char_name = saved_chars[int(choice)-1]
+                char_name = saved_chars[int(choice) - 1]
                 current_character = load_character(char_name)
                 print(f"Loaded character {char_name}.")
                 game_loop()
@@ -87,7 +89,8 @@ def load_game():
     except (CharacterNotFoundError, SaveFileCorruptedError) as e:
         print(f"Error loading character: {e}")
 
-# ============================================================================
+
+# ===================== GAME LOOP & MENUS =====================
 
 def game_loop():
     """Main game loop"""
@@ -114,6 +117,7 @@ def game_loop():
         if current_character is None:
             game_running = False  # character died
 
+
 def game_menu():
     """Display game menu and get player choice"""
     print("\n=== GAME MENU ===")
@@ -129,7 +133,8 @@ def game_menu():
             return int(choice)
         print("Invalid input. Enter a number between 1 and 6.")
 
-# ============================================================================
+
+# ===================== CHARACTER & INVENTORY =====================
 
 def view_character_stats():
     """Display character information"""
@@ -142,6 +147,7 @@ def view_character_stats():
         print(f"{key}: {value}")
     print(f"Gold: {current_character.gold}")
     print("Active Quests:", [q['name'] for q in get_active_quests(current_character)])
+
 
 def view_inventory():
     """Display and manage inventory"""
@@ -170,6 +176,9 @@ def view_inventory():
                 print("Invalid choice.")
         except InventoryError as e:
             print(f"Inventory error: {e}")
+
+
+# ===================== QUESTS =====================
 
 def quest_menu():
     """Quest management menu"""
@@ -210,6 +219,9 @@ def quest_menu():
         else:
             print("Invalid choice.")
 
+
+# ===================== EXPLORING & BATTLE =====================
+
 def explore():
     """Find and fight random enemies"""
     global current_character
@@ -222,15 +234,24 @@ def explore():
     if result == "dead":
         handle_character_death()
     elif result == "victory":
-        print(f"You defeated the {enemy['type']}! Gained {enemy['xp_reward']} XP and {enemy['gold_reward']} gold.")
+        print(
+            f"You defeated the {enemy['type']}! "
+            f"Gained {enemy['xp_reward']} XP and {enemy['gold_reward']} gold."
+        )
         current_character.xp += enemy['xp_reward']
         current_character.gold += enemy['gold_reward']
+
+
+# ===================== SHOP =====================
 
 def shop():
     """Shop menu for buying/selling items"""
     global current_character, all_items
     if not current_character:
         print("No character loaded.")
+        return
+    if not all_items:
+        print("Shop is currently empty. No items to buy or sell.")
         return
     while True:
         print("\n=== SHOP ===")
@@ -257,7 +278,8 @@ def shop():
         else:
             print("Invalid choice.")
 
-# ============================================================================
+
+# ===================== SAVE / LOAD DATA =====================
 
 def save_game():
     """Save current game state"""
@@ -267,6 +289,7 @@ def save_game():
         print("Game saved successfully.")
     except Exception as e:
         print(f"Error saving game: {e}")
+
 
 def load_game_data():
     """Load all quest and item data from files"""
@@ -279,6 +302,9 @@ def load_game_data():
         game_data.create_default_data_files()
         all_quests = game_data.load_quests()
         all_items = game_data.load_items()
+
+
+# ===================== DEATH & WELCOME =====================
 
 def handle_character_death():
     """Handle character death"""
@@ -301,6 +327,7 @@ def handle_character_death():
         else:
             print("Invalid choice.")
 
+
 def display_welcome():
     """Display welcome message"""
     print("=" * 50)
@@ -310,7 +337,8 @@ def display_welcome():
     print("Build your character, complete quests, and become a legend!")
     print()
 
-# ============================================================================
+
+# ===================== ENTRY POINT =====================
 
 def main():
     """Main game execution function"""
@@ -332,7 +360,9 @@ def main():
             print("\nThanks for playing Quest Chronicles!")
             break
         else:
+            # This should never hit because main_menu only returns 1-3
             print("Invalid choice. Please select 1-3.")
+
 
 if __name__ == "__main__":
     main()
