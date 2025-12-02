@@ -28,7 +28,7 @@ def create_enemy(enemy_type):
 
     if enemy_type not in opp:
         raise InvalidTargetError(f"Enemy type '{enemy_type}' not recognized")
-    
+
     stats = opp[enemy_type]
     return {
         "name": enemy_type,
@@ -47,7 +47,7 @@ def get_random_enemy_for_level(character_level):
         enemy_type = "orc"
     else:
         enemy_type = "dragon"
-    
+
     return create_enemy(enemy_type)
 
 # ==========================
@@ -65,28 +65,29 @@ def use_special_ability(character, enemy):
 # COMBAT SYSTEM
 # ==========================
 class SimpleBattle:
-    def __init__(self, character):
+    def __init__(self, character, enemy=None):
         self.character = character
-        self.enemy = get_random_enemy_for_level(self.character['level'])
+        if enemy is None:
+            self.enemy = get_random_enemy_for_level(self.character['level'])
+        else:
+            self.enemy = enemy
         self.in_battle = True
         self.turn_count = 0
 
     def start_battle(self):
         if self.character['health'] <= 0:
             raise CharacterDeadError("Cannot start battle: character is dead")
-        
+
         while self.in_battle:
             self.player_turn()
-            winner = self.check_battle_end()
-            if winner:
+            if self.check_battle_end():
                 self.in_battle = False
                 break
             self.enemy_turn()
-            winner = self.check_battle_end()
-            if winner:
+            if self.check_battle_end():
                 self.in_battle = False
                 break
-        
+
         if self.character['health'] > 0:
             self.character['experience'] += self.enemy['xp_reward']
             self.character['gold'] += self.enemy['gold_reward']
@@ -102,7 +103,7 @@ class SimpleBattle:
         print("1. Basic Attack")
         print("2. Special Ability")
         print("3. Try to Run")
-        
+
         choice = input("Enter the number of your action: ").strip()
 
         if choice == "1":
@@ -123,7 +124,7 @@ class SimpleBattle:
     def enemy_turn(self):
         if not self.in_battle:
             raise CombatNotActiveError("Cannot take a turn outside of battle")
-        
+
         damage = self.calculate_damage(self.enemy, self.character)
         self.apply_damage(self.character, damage)
         display_battle_log(f"The {self.enemy['name']} attacks you for {damage} damage!")
@@ -151,17 +152,30 @@ class SimpleBattle:
         return False
 
 # ==========================
+# FILE LOADING WITH EXCEPTIONS
+# ==========================
+def load_data_file(filename):
+    if not os.path.isfile(filename):
+        raise MissingDataFileError(f"File '{filename}' not found")
+    try:
+        with open(filename, "r") as f:
+            data = json.load(f)
+    except Exception:
+        raise InvalidDataFormatError(f"File '{filename}' is invalid")
+    return data
+
+# ==========================
 # TESTING BLOCK
 # ==========================
 if __name__ == "__main__":
     print("=== COMBAT SYSTEM TEST ===")
-    
+
     try:
         goblin = create_enemy("goblin")
         print(f"Created {goblin['name']}")
     except InvalidTargetError as e:
         print(f"Invalid enemy: {e}")
-    
+
     test_char = {
         'name': 'Hero',
         'class': 'Warrior',
