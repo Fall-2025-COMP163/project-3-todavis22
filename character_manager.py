@@ -21,8 +21,40 @@ from custom_exceptions import (
 # ============================================================================
 # CHARACTER MANAGEMENT FUNCTIONS
 # ============================================================================
+def create_character(name, character_class):
+    stats_classes = {
+        "Warrior": {"health": 120, "strength": 15, "magic": 3},
+        "Mage": {"health": 80, "strength": 5, "magic": 20},
+        "Rogue": {"health": 100, "strength": 12, "magic": 8}
+    }
+
+    if char_class not in valid_classes:
+        raise InvalidCharacterClassError(f"Invalid class: {character_class}")
+
+    stats = stats_classes[character_class]
+
+    character = {
+        "name": name,
+        "class": character_class,
+        "level": 1,
+        "health": stats["health"],
+        "max_health": stats["health"],
+        "strength": stats["strength"],
+        "magic": stats["magic"],
+        "experience": 0,
+        "gold": 0,
+        "inventory": [],
+        "active_quests": [],
+        "completed_quests": []
+    }
+
+    return character
+
 def save_character(character, save_directory="data/save_games"):
-    os.makedirs(save_directory, exist_ok=True)
+    
+    if not os.path.exists(save_directory):
+        os.makedirs(save_directory)
+
     file_path = os.path.join(save_directory, f"{character['name']}.txt")
 
     inventory_csv = ",".join(character["inventory"])
