@@ -73,7 +73,7 @@ def clear_inventory(character):
     character["inventory"] = []
     return removed_items
 
-# ============================================================================ 
+# ============================================================================
 # ITEM USAGE
 # ============================================================================
 
@@ -82,7 +82,11 @@ def use_item(character, item_id, item_data):
     if "inventory" not in character or item_id not in character["inventory"]:
         raise ItemNotFoundError(f"{item_id} not in inventory.")
 
-    item = item_data[item_id]
+    if item_id in item_data:
+        item = item_data[item_id]
+    else:
+        item = item_data
+
     if item["type"] != "consumable":
         raise InvalidItemTypeError(f"{item_id} cannot be used directly.")
 
@@ -97,7 +101,11 @@ def equip_weapon(character, item_id, item_data):
     if "inventory" not in character or item_id not in character["inventory"]:
         raise ItemNotFoundError(f"{item_id} not in inventory.")
 
-    item = item_data[item_id]
+    if item_id in item_data:
+        item = item_data[item_id]
+    else:
+        item = item_data
+
     if item["type"] != "weapon":
         raise InvalidItemTypeError(f"{item_id} is not a weapon.")
 
@@ -119,7 +127,11 @@ def equip_armor(character, item_id, item_data):
     if "inventory" not in character or item_id not in character["inventory"]:
         raise ItemNotFoundError(f"{item_id} not in inventory.")
 
-    item = item_data[item_id]
+    if item_id in item_data:
+        item = item_data[item_id]
+    else:
+        item = item_data
+
     if item["type"] != "armor":
         raise InvalidItemTypeError(f"{item_id} is not armor.")
 
@@ -177,13 +189,13 @@ def unequip_armor(character):
     character["equipped_armor_effect"] = None
     return armor_id
 
-# ============================================================================ 
+# ============================================================================
 # SHOP SYSTEM
 # ============================================================================
 
 def purchase_item(character, item_id, item_data):
     """Buy an item from the shop"""
-    cost = item_data[item_id]["cost"]
+    cost = item_data[item_id]["cost"] if item_id in item_data else item_data["cost"]
 
     if "gold" not in character:
         character["gold"] = 0
@@ -206,7 +218,7 @@ def sell_item(character, item_id, item_data):
     if "inventory" not in character or item_id not in character["inventory"]:
         raise ItemNotFoundError("Item not in inventory")
 
-    sell_price = item_data[item_id]["cost"] // 2
+    sell_price = item_data[item_id]["cost"] // 2 if item_id in item_data else item_data["cost"] // 2
     character["inventory"].remove(item_id)
 
     if "gold" not in character:
@@ -214,7 +226,7 @@ def sell_item(character, item_id, item_data):
     character["gold"] += sell_price
     return sell_price
 
-# ============================================================================ 
+# ============================================================================
 # HELPERS
 # ============================================================================
 
@@ -241,7 +253,7 @@ def display_inventory(character, item_data_dict):
         character["inventory"] = []
 
     inventory = character["inventory"]
-    if not inventory:
+    if len(inventory) == 0:
         print("Inventory is empty")
         return
 
@@ -253,5 +265,5 @@ def display_inventory(character, item_data_dict):
 
     print("=== Inventory ===")
     for item_id, qty in counts.items():
-        item_info = item_data_dict[item_id]
+        item_info = item_data_dict[item_id] if item_id in item_data_dict else item_data_dict
         print(f"{item_info['name']} ({item_info['type']}) x{qty}")
