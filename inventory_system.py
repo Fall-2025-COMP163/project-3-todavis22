@@ -201,7 +201,7 @@ def unequip_armor(character):
 
 def purchase_item(character, item_id, item_data):
     """Buy an item from the shop"""
-    cost = item_data[item_id]["cost"] if item_id in item_data else item_data["cost"]
+    cost = item_data["cost"]  # item_data is already for this item
 
     if "gold" not in character:
         character["gold"] = 0
