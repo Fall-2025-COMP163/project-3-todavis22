@@ -81,7 +81,7 @@ def use_item(character, item_id, item_data):
     if "inventory" not in character or item_id not in character["inventory"]:
         raise ItemNotFoundError(f"{item_id} not in inventory.")
 
-    # Support full item_data dicts AND simple {type, effect}
+    # Support both formats
     if item_id in item_data:
         item = item_data[item_id]
     else:
@@ -94,9 +94,7 @@ def use_item(character, item_id, item_data):
     apply_stat_effect(character, stat, value)
     character["inventory"].remove(item_id)
 
-    # Fallback name if not provided (prevents KeyError)
     item_name = item.get("name", item_id)
-
     return f"Used {item_name}, {stat} increased by {value}."
 
 
@@ -120,13 +118,15 @@ def equip_weapon(character, item_id, item_data):
     if stat not in character:
         character[stat] = 0
     character[stat] += value
+
     character["equipped_weapon"] = item_id
     character["equipped_weapon_effect"] = item["effect"]
     character["inventory"].remove(item_id)
 
-    # FIX ADDED HERE
     item_name = item.get("name", item_id)
-    return f"{character['name']} equipped {item_name} (+{value} {stat})."
+    char_name = character.get("name", "Character")
+
+    return f"{char_name} equipped {item_name} (+{value} {stat})."
 
 
 def equip_armor(character, item_id, item_data):
@@ -149,13 +149,15 @@ def equip_armor(character, item_id, item_data):
     if stat not in character:
         character[stat] = 0
     character[stat] += value
+
     character["equipped_armor"] = item_id
     character["equipped_armor_effect"] = item["effect"]
     character["inventory"].remove(item_id)
 
-    # FIX ADDED HERE
     item_name = item.get("name", item_id)
-    return f"{character['name']} equipped {item_name} (+{value} {stat})."
+    char_name = character.get("name", "Character")
+
+    return f"{char_name} equipped {item_name} (+{value} {stat})."
 
 
 def unequip_weapon(character):
@@ -204,10 +206,20 @@ def unequip_armor(character):
 # ============================================================================
 def purchase_item(character, item_id, item_data):
     """Buy an item from the shop"""
-    cost = item_data[item_id]["cost"] if item_id in item_data else item_data["cost"]
+
+    # Supports:
+    # - {"health_potion": {...}}
+    # - {"cost": ..., "type": ...}
+    if isinstance(item_data, dict) and item_id in item_data:
+        item = item_data[item_id]
+    else:
+        item = item_data
+
+    cost = item.get("cost", 0)
 
     if "gold" not in character:
         character["gold"] = 0
+
     if character["gold"] < cost:
         raise InsufficientResourcesError("Not enough gold")
 
@@ -224,14 +236,21 @@ def purchase_item(character, item_id, item_data):
 
 def sell_item(character, item_id, item_data):
     """Sell an item for half price"""
+
     if "inventory" not in character or item_id not in character["inventory"]:
         raise ItemNotFoundError("Item not in inventory")
 
-    sell_price = item_data[item_id]["cost"] // 2 if item_id in item_data else item_data["cost"] // 2
+    if isinstance(item_data, dict) and item_id in item_data:
+        item = item_data[item_id]
+    else:
+        item = item_data
+
+    sell_price = item.get("cost", 0) // 2
     character["inventory"].remove(item_id)
 
     if "gold" not in character:
         character["gold"] = 0
+
     character["gold"] += sell_price
     return sell_price
 
@@ -267,11 +286,9 @@ def display_inventory(character, item_data_dict):
 
     counts = {}
     for item in inventory:
-        if item not in counts:
-            counts[item] = 0
-        counts[item] += 1
+        counts[item] = counts.get(item, 0) + 1
 
     print("=== Inventory ===")
     for item_id, qty in counts.items():
         item_info = item_data_dict[item_id] if item_id in item_data_dict else item_data_dict
-        print(f"{item_info['name']} ({item_info['type']}) x{qty}")
+        print(f"{item_info.get('name', item_id)} ({item_info['type']}) x{qty}")
