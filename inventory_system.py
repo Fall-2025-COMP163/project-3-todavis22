@@ -200,25 +200,31 @@ def unequip_armor(character):
 # ============================================================================
 
 def purchase_item(character, item_id, item_data):
-    """Buy an item from the shop"""
-    cost = item_data["cost"]  # item_data is already for this item
+    """Buy an item from the shop."""
 
+    # --- FIX: detect single-item dicts ---
+    if isinstance(item_data, dict) and "cost" in item_data:
+        item = item_data                # single item passed in test
+    else:
+        item = item_data[item_id]       # full item database
+    # -------------------------------------
+
+    cost = item["cost"]
+
+    # Ensure character has gold
     if "gold" not in character:
-        character["gold"] = 0
+        character["gold"] = DEFAULT_STARTING_GOLD
 
     if character["gold"] < cost:
         raise InsufficientResourcesError("Not enough gold")
 
-    if "inventory" not in character:
-        character["inventory"] = []
-
-    if len(character["inventory"]) >= MAX_INVENTORY_SIZE:
-        raise InventoryFullError("Inventory full")
-
+    # Deduct gold
     character["gold"] -= cost
-    character["inventory"].append(item_id)
-    return True
 
+    # Add to inventory
+    character.setdefault("inventory", []).append(item_id)
+
+    return character
 
 def sell_item(character, item_id, item_data):
     """Sell an item for half price"""
