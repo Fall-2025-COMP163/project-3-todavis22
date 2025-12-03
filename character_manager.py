@@ -34,7 +34,7 @@ def create_character(name, character_class):
         raise InvalidCharacterClassError(f"Invalid class: {character_class}")
 
     stats = stats_classes[character_class]
-
+    DEFAULT_STARTING_GOLD = 100  
     character = {
         "name": name,
         "class": character_class,
@@ -44,7 +44,7 @@ def create_character(name, character_class):
         "strength": stats["strength"],
         "magic": stats["magic"],
         "experience": 0,
-        "gold": 0,
+        "gold": DEFAULT_STARTING_GOLD,
         "inventory": [],
         "active_quests": [],
         "completed_quests": []
