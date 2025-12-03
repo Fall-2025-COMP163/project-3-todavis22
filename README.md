@@ -133,6 +133,40 @@ Document your project with:
 4. **AI Usage:** Detail what AI assistance you used
 5. **How to Play:** Instructions for running the game
 
+My game is organized into small, focused modules so that each part of the code has a clear responsibility:
+character_manager.py
+Handles everything related to player characters:
+Creating new characters with default stats (health, max_health, strength, magic, gold, inventory, etc.)
+Leveling and experience updates (if needed)
+Utility helpers for reading/updating character fields
+inventory_system.py
+Responsible for item and inventory logic:
+Adding/removing items, counting items, checking if a character has an item
+Inventory capacity checks (MAX_INVENTORY_SIZE)
+Equipping/unequipping weapons and armor
+Using consumable items (like health potions)
+Shop actions: purchasing and selling items
+game_data.py
+Stores static data and configuration:
+Definitions of items (IDs, names, types, costs, effects)
+Possibly starting stats, classes, and other constants used across the game
+custom_exceptions.py
+Central place for all custom error types:
+InventoryFullError
+ItemNotFoundError
+InvalidItemTypeError
+InsufficientResourcesError
+(and any others like InvalidCharacterClassError)
+game_loop.py / main.py
+Entry point and main loop:
+Displays the main menu
+Handles user input (new game, load game, exit)
+Calls into character_manager and inventory_system to perform actions
+Prints results/messages back to the player
+tests/
+Contains unit and integration tests:
+test_game_integration.py checks that modules work together (e.g. buying/selling items, equipping gear, etc.)
+Other test files (if present) cover individual modules
 ### What to Submit:
 
 1. **GitHub Repository:** Your completed multi-module project
