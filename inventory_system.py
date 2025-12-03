@@ -198,16 +198,21 @@ def unequip_armor(character):
 # ============================================================================
 # SHOP SYSTEM
 # ============================================================================
-
 def purchase_item(character, item_id, item_data):
-    """Buy an item from the shop."""
+    """Buy an item from the shop.
 
-    # --- FIX: detect single-item dicts ---
+    item_data can be:
+    - full items dict: {"health_potion": {...}, ...}
+    - single item dict: {"cost": 25, "type": "consumable"}
+    """
+
+    # Detect whether item_data is a full items dict or a single item
     if isinstance(item_data, dict) and "cost" in item_data:
-        item = item_data                # single item passed in test
+        # Single item dict, like in test_shop_system
+        item = item_data
     else:
-        item = item_data[item_id]       # full item database
-    # -------------------------------------
+        # Full items dict; look up by id
+        item = item_data[item_id]
 
     cost = item["cost"]
 
@@ -215,13 +220,14 @@ def purchase_item(character, item_id, item_data):
     if "gold" not in character:
         character["gold"] = DEFAULT_STARTING_GOLD
 
+    # Not enough money? raise
     if character["gold"] < cost:
         raise InsufficientResourcesError("Not enough gold")
 
     # Deduct gold
     character["gold"] -= cost
 
-    # Add to inventory
+    # Add item to inventory
     character.setdefault("inventory", []).append(item_id)
 
     return character
