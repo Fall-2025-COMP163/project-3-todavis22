@@ -167,6 +167,8 @@ tests/
 Contains unit and integration tests:
 test_game_integration.py checks that modules work together (e.g. buying/selling items, equipping gear, etc.)
 Other test files (if present) cover individual modules
+
+AI for majority of the prject inventory helped with ai game data and quest data
 ### What to Submit:
 
 1. **GitHub Repository:** Your completed multi-module project
